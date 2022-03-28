@@ -5,7 +5,7 @@ from numpy.testing import *
 
 from src.tabular.policies import TabularQPolicy, Qdict2array
 from src.tabular.TD import QLearning
-from src.envs.dummy_envs import *
+from src.envs.dummy_envs import ChainEnv, GridEnv
 
 
 class TestQLearning(unittest.TestCase):

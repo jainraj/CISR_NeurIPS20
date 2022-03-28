@@ -28,12 +28,11 @@ def main(n_interv=3):
                 thresholds = thresholds[0]
             policy = SingleSwitchPolicy(thresholds)
             return evaluate_single_switch_policy(policy, teacher_env, student_final_env)
+
     elif n_interv == 3:
-        domain = [{'name': 'var_1', 'type': 'continuous', 'domain': (-0.5,
-                                                                     5.5)},
+        domain = [{'name': 'var_1', 'type': 'continuous', 'domain': (-0.5, 5.5)},
                   {'name': 'var_2', 'type': 'continuous', 'domain': (0, 0.2)},
-                  {'name': 'var_3', 'type': 'continuous', 'domain': (-0.5,
-                                                                     5.5)},
+                  {'name': 'var_3', 'type': 'continuous', 'domain': (-0.5, 5.5)},
                   {'name': 'var_4', 'type': 'continuous', 'domain': (0, 0.2)},
                   {'name': 'var_5', 'type': 'discrete', 'domain': (0, 1, 2)},
                   {'name': 'var_6', 'type': 'discrete', 'domain': (0, 1, 2)},

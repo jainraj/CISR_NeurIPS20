@@ -9,11 +9,9 @@ from src.envs import CMDP, FrozenLakeEnvCustomMap
 from src.envs.frozen_lake.frozen_maps import MAPS
 from src.students import LagrangianStudent, identity_transfer
 from src.online_learning import ExponetiatedGradient
-from src.teacher import FrozenLakeEvaluationLogger,  TeacherFrozenEnv, \
-    create_intervention, SmallFrozenTeacherEnv
-from src.teacher.frozen_lake_env import SmallFrozenTrainingObservation, SmallFrozenNonStationaryBandits
-from src.envs.frozen_lake.utils import create_intervention_from_map, \
-    OptimalAgent, add_teacher
+from src.teacher import FrozenLakeEvaluationLogger, create_intervention, SmallFrozenTeacherEnv
+from src.teacher.flake_approx.frozen_lake_env import SmallFrozenTrainingObservation, SmallFrozenNonStationaryBandits
+from src.envs.frozen_lake.utils import create_intervention_from_map, add_teacher
 
 import tensorflow as tf
 
