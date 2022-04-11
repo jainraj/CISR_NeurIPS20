@@ -11,7 +11,7 @@ def one_step_reach(base_mask):
      [False, True,  False],
      [False, False, False]]
 
-    rerturns the mask of one step reachable states
+    returns the mask of one step reachable states
     [[False, True,  False],
      [True,  False, True ],
      [False, True,  False]]
@@ -31,7 +31,7 @@ def one_step_reach(base_mask):
 
 
 def get_intervention_states(n_steps=1):
-    base_danger_mask = DangerousGridWorldEnvCustom().cliff
+    base_danger_mask = DangerousGridWorldEnvCustom().danger_states
 
     previous_mask = np.copy(base_danger_mask)
     for _ in range(n_steps):
@@ -40,7 +40,7 @@ def get_intervention_states(n_steps=1):
 
     intervention_states = []
     for x, y in reach_mask.nonzero():
-        intervention_states.append(np.ravel_multi_index((x, y), DangerousGridWorldEnvCustom().shape))
+        intervention_states.append(np.ravel_multi_index((x, y), DangerousGridWorldEnvCustom().grid_specs))
 
     return intervention_states
 

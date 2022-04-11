@@ -15,7 +15,7 @@ tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 
 
 def constraint(info=None, **kwargs):
-    return {'g': float(info['next_state_type'] == 'cliff')}
+    return {'g': float(info['next_state_type'] == 'danger')}
 
 
 def base_cenv_fn():
@@ -129,4 +129,3 @@ def create_teacher_env(new_br_kwargs={}, new_online_kwargs={},
                       test_episode_timeout=test_episode_timeout,
                       time_steps_lim=time_steps_lim,
                       normalize_obs=False)
-
