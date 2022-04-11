@@ -13,7 +13,6 @@ from src.envs.lunar_lander.interventions import \
 from src.online_learning import ExponetiatedGradient
 from src.students import identity_transfer, LagrangianStudent
 import src.envs.lunar_lander.utils as utils
-from src.teacher.frozen_single_switch_utils import SingleSwitchPolicy
 
 
 class LunarLanderTeacherEnv(TeacherEnv):

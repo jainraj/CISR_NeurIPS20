@@ -5,9 +5,9 @@ import numpy as np
 from stable_baselines.a2c.utils import conv, linear, conv_to_fc
 from src.students import LagrangianStudent, identity_transfer
 from src.online_learning import ExponetiatedGradient
-from src.envs import CMDP, CliffWalkingEnvCustom
+from src.envs import CMDP, DangerousGridWorldEnvCustom
 from src.teacher import create_intervention
-from src.envs.cliff_walking.utils import get_intervention_states, create_intervention_from_list
+from src.envs.dangerous_grid_world.utils import get_intervention_states, create_intervention_from_list
 from src.teacher.evaluation_loggers import BaseEvaluationLogger
 from src.teacher.common import TeacherEnv
 
@@ -20,7 +20,7 @@ def constraint(info=None, **kwargs):
 
 def base_cenv_fn():
     # get the base constrained env
-    return CMDP(CliffWalkingEnvCustom(timeout=200), constraint,
+    return CMDP(DangerousGridWorldEnvCustom(timeout=200), constraint,
                 constraints_values=[0],
                 n_constraints=1,
                 avg_constraint=True)
@@ -119,14 +119,14 @@ def create_teacher_env(new_br_kwargs={}, new_online_kwargs={},
     # else:
 
     return TeacherEnv(student_cls=LagrangianStudent,
-                       student_default_kwargs=student_default_kwargs,
-                       interventions=interventions,
-                       final_env=test_env,
-                       logger_cls=BaseEvaluationLogger,
-                       student_ranges_dict=student_ranges_dict,
-                       learning_steps=learning_steps,
-                       test_episode_number=test_episode_number,
-                       test_episode_timeout=test_episode_timeout,
-                       time_steps_lim=time_steps_lim,
-                       normalize_obs=False)
+                      student_default_kwargs=student_default_kwargs,
+                      interventions=interventions,
+                      final_env=test_env,
+                      logger_cls=BaseEvaluationLogger,
+                      student_ranges_dict=student_ranges_dict,
+                      learning_steps=learning_steps,
+                      test_episode_number=test_episode_number,
+                      test_episode_timeout=test_episode_timeout,
+                      time_steps_lim=time_steps_lim,
+                      normalize_obs=False)
 

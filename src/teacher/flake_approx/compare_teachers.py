@@ -9,10 +9,9 @@ import argparse
 
 from src.teacher.flake_approx.deploy_teacher_policy import deploy_policy, \
     plot_deployment_metric, OpenLoopTeacher
-from src.contextual_bandits import CGPUCBPolicy, ContextualBanditRL
 from src.teacher.flake_approx.teacher_env import create_teacher_env, \
     small_base_cenv_fn
-from src.teacher.frozen_single_switch_utils import SingleSwitchPolicy
+from src.teacher.flake_approx.frozen_single_switch_utils import SingleSwitchPolicy
 from src.teacher.NonStationaryBanditPolicy import NonStationaryBanditPolicy
 from src.utils.plotting import cm2inches, set_figure_params
 

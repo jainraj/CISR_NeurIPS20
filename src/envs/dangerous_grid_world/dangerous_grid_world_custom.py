@@ -5,10 +5,10 @@ import sys
 from contextlib import closing
 from io import StringIO
 from src.envs.discrete_custom import DiscreteEnvCustom
-from src.envs.cliff_walking.cliff_walking_constants import UP, DOWN, LEFT, RIGHT
+from src.envs.dangerous_grid_world.dangerous_grid_world_constants import UP, DOWN, LEFT, RIGHT
 
 
-class CliffWalkingEnvCustom(DiscreteEnvCustom):
+class DangerousGridWorldEnvCustom(DiscreteEnvCustom):
 
     metadata = {"render.modes": ["human", "ansi"]}
 
@@ -38,7 +38,7 @@ class CliffWalkingEnvCustom(DiscreteEnvCustom):
         isd = np.zeros(nS)
         isd[self.start_state_index] = 1.0
 
-        super(CliffWalkingEnvCustom, self).__init__(nS, nA, P, isd, timeout)
+        super(DangerousGridWorldEnvCustom, self).__init__(nS, nA, P, isd, timeout)
 
     def _limit_coordinates(self, coord):
         """

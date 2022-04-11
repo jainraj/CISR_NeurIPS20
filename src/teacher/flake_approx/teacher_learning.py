@@ -5,7 +5,7 @@ from GPyOpt.methods import BayesianOptimization
 from GPyOpt.models import GPModel
 import time
 from datetime import datetime
-from src.teacher.frozen_single_switch_utils import evaluate_single_switch_policy, \
+from src.teacher.flake_approx.frozen_single_switch_utils import evaluate_single_switch_policy, \
     SingleSwitchPolicy
 from src.teacher.flake_approx.teacher_env import create_teacher_env, \
     small_base_cenv_fn

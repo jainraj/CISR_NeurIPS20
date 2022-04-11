@@ -1,4 +1,4 @@
-from src.envs.cliff_walking.cliff_walking_custom import CliffWalkingEnvCustom
+from src.envs.dangerous_grid_world.dangerous_grid_world_custom import DangerousGridWorldEnvCustom
 import numpy as np
 
 
@@ -31,7 +31,7 @@ def one_step_reach(base_mask):
 
 
 def get_intervention_states(n_steps=1):
-    base_danger_mask = CliffWalkingEnvCustom().cliff
+    base_danger_mask = DangerousGridWorldEnvCustom().cliff
 
     previous_mask = np.copy(base_danger_mask)
     for _ in range(n_steps):
@@ -40,7 +40,7 @@ def get_intervention_states(n_steps=1):
 
     intervention_states = []
     for x, y in reach_mask.nonzero():
-        intervention_states.append(np.ravel_multi_index((x, y), CliffWalkingEnvCustom().shape))
+        intervention_states.append(np.ravel_multi_index((x, y), DangerousGridWorldEnvCustom().shape))
 
     return intervention_states
 
