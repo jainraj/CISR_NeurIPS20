@@ -39,7 +39,8 @@ def get_intervention_states(n_steps=1):
         previous_mask[:] |= reach_mask[:]
 
     intervention_states = []
-    for x, y in reach_mask.nonzero():
+    xs, ys = reach_mask.nonzero()
+    for x, y in zip(xs, ys):
         intervention_states.append(np.ravel_multi_index((x, y), DangerousGridWorldEnvCustom().grid_specs))
 
     return intervention_states

@@ -50,6 +50,9 @@ class DangerousGridWorldEnvCustom(DiscreteEnvCustom):
 
         super(DangerousGridWorldEnvCustom, self).__init__(nS, nA, P, isd, timeout)
 
+    def get_state(self):
+        return self.s
+
     def _limit_coordinates(self, coord):
         """
         Prevent the agent from falling out of the grid world
