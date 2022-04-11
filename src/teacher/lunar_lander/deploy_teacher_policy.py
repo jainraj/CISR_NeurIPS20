@@ -6,7 +6,7 @@ from datetime import datetime
 
 import src.envs.lunar_lander.utils as utils
 from src.teacher.lunar_lander.teacher_env import create_single_switch_env, \
-    create_teacher_env, evaluate_single_switch_policy, SingleSwitchPolicy
+    create_teacher_env, evaluate_single_switch_policy
 from src.envs.lunar_lander.interventions import LanderOrthogonalIntervention
 from src.teacher.lunar_lander.analysis import plot_results, get_data_experiment_type
 

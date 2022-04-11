@@ -1,7 +1,7 @@
 import numpy as np
 
 
-__all__ = ['BaseEvaluationLogger', 'FrozenLakeEvaluationLogger']
+__all__ = ['BaseEvaluationLogger']
 
 
 class BaseEvaluationLogger(object):
@@ -103,18 +103,3 @@ class BaseEvaluationLogger(object):
                     'terminations': np.asarray(self.termination_episodes),
                     'trajectories': self.trajectories_episodes}
         return counters
-
-
-class FrozenLakeEvaluationLogger(BaseEvaluationLogger):
-    @staticmethod
-    def determine_termination_cause(transition_dict):
-        """Return -1 for failure, +1 for success and 0 for timeout"""
-        if not transition_dict['done']:
-            return None
-        else:
-            if transition_dict['info']['next_state_type'] == 'G':
-                return 1
-            elif transition_dict['info']['teacher_intervention']:
-                return -1
-            else:
-                return 0

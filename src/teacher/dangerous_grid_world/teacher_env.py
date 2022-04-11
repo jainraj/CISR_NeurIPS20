@@ -112,20 +112,37 @@ def create_teacher_env(new_br_kwargs={}, new_online_kwargs={},
     test_episode_timeout = 200
     test_episode_number = 5
 
-    # if obs_from_training:
-    #     env_cls = SmallFrozenTrainingObservation
-    # elif non_stationary_bandit:
-    #     env_cls = SmallFrozenNonStationaryBandits
-    # else:
+    # todo: keep same for now
+    if obs_from_training:
+        env_cls = TeacherEnv
+    elif non_stationary_bandit:
+        env_cls = TeacherEnv
+    else:
+        env_cls = TeacherEnv
 
-    return TeacherEnv(student_cls=LagrangianStudent,
-                      student_default_kwargs=student_default_kwargs,
-                      interventions=interventions,
-                      final_env=test_env,
-                      logger_cls=BaseEvaluationLogger,
-                      student_ranges_dict=student_ranges_dict,
-                      learning_steps=learning_steps,
-                      test_episode_number=test_episode_number,
-                      test_episode_timeout=test_episode_timeout,
-                      time_steps_lim=time_steps_lim,
-                      normalize_obs=False)
+    return env_cls(student_cls=LagrangianStudent,
+                   student_default_kwargs=student_default_kwargs,
+                   interventions=interventions,
+                   final_env=test_env,
+                   logger_cls=BaseEvaluationLogger,
+                   student_ranges_dict=student_ranges_dict,
+                   learning_steps=learning_steps,
+                   test_episode_number=test_episode_number,
+                   test_episode_timeout=test_episode_timeout,
+                   time_steps_lim=time_steps_lim,
+                   normalize_obs=False)
+
+
+class DangerousGridWorldEvaluationLogger(BaseEvaluationLogger):
+    @staticmethod
+    def determine_termination_cause(transition_dict):
+        """Return -1 for failure, +1 for success and 0 for timeout"""
+        if not transition_dict['done']:
+            return None
+        else:
+            if transition_dict['info']['next_state_type'] == 'terminal':
+                return 1
+            elif transition_dict['info']['teacher_intervention']:
+                return -1
+            else:
+                return 0

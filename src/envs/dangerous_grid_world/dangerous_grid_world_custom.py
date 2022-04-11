@@ -76,7 +76,8 @@ class DangerousGridWorldEnvCustom(DiscreteEnvCustom):
             return [(1.0, self.start_state_index, -100, False, {'next_state_type': 'danger'})]
 
         is_done = tuple(new_position) == self.end_state
-        return [(1.0, new_state, -1, is_done, {'next_state_type': 'safe'})]
+        next_state_type = "terminal" if is_done else "safe"
+        return [(1.0, new_state, -1, is_done, {'next_state_type': next_state_type})]
 
     def render(self, mode="human"):
         outfile = StringIO() if mode == "ansi" else sys.stdout
