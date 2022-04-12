@@ -1,11 +1,11 @@
-__author__ = 'mainak'
-
 import numpy as np
+import gym
 import sys
+import matplotlib.pyplot as plt
 from contextlib import closing
 from io import StringIO
 from src.envs.discrete_custom import DiscreteEnvCustom
-from src.envs.dangerous_grid_world.dangerous_grid_world_constants import UP, DOWN, LEFT, RIGHT, DANGER_STATES
+from src.envs.dangerous_grid_world.dangerous_grid_world_constants import UP, DOWN, LEFT, RIGHT, DANGER_STATES, DANGER, SAFE, TERMINAL
 
 
 class DangerousGridWorldEnvCustom(DiscreteEnvCustom):
@@ -45,10 +45,36 @@ class DangerousGridWorldEnvCustom(DiscreteEnvCustom):
 
         # Calculate initial state distribution
         isd = np.zeros(nS)
-
         isd[self.start_state_index] = 1.0
 
         super(DangerousGridWorldEnvCustom, self).__init__(nS, nA, P, isd, timeout)
+
+        unique_states = [SAFE, TERMINAL, DANGER, 'agent']
+        values = [0., 0.25, 0.5, 0.75]
+        self.num_desc = np.zeros_like(self.danger_states, dtype=np.float)
+        self.num_desc[self.danger_states] = 0.5
+        self.num_desc[end_state] = 0.25
+
+        n = self.observation_space.n
+        shape = (int(np.sqrt(n)), int(np.sqrt(n)), 1)  # Last dim for CNN
+        self.observation_space = gym.spaces.Box(low=0, high=1,
+                                                shape=shape, dtype=np.float)
+        self.fig, self.ax = (None, None)
+
+    def compute_obs(self):
+        new_obs = np.copy(self.num_desc)
+        new_obs[np.unravel_index(self.s, self.num_desc.shape)] = 1.0
+        return new_obs[:, :, None]
+
+    def step(self, a):
+        _, r, done, info = super(DangerousGridWorldEnvCustom, self).step(a)
+        s = self.compute_obs()
+        return s, r, done, info
+
+    def reset(self):
+        # Set self.s
+        super(DangerousGridWorldEnvCustom, self).reset()
+        return self.compute_obs()
 
     def get_state(self):
         return self.s
@@ -75,41 +101,59 @@ class DangerousGridWorldEnvCustom(DiscreteEnvCustom):
         :param delta: Change in position for transition
         :return: (1.0, new_state, reward, done)
         """
-        new_position = np.array(current) + np.array(delta)
-        new_position = self._limit_coordinates(new_position).astype(int)
-        new_state = np.ravel_multi_index(tuple(new_position), self.grid_specs)
-        if self.danger_states[tuple(new_position)]:
-            return [(1.0, self.start_state_index, -100, False, {'next_state_type': 'danger'})]
-
-        is_done = tuple(new_position) == self.end_state
-        next_state_type = "terminal" if is_done else "safe"
-        return [(1.0, new_state, -1, is_done, {'next_state_type': next_state_type})]
-
-    def render(self, mode="human"):
-        outfile = StringIO() if mode == "ansi" else sys.stdout
-
-        for s in range(self.nS):
-            position = np.unravel_index(s, self.grid_specs)
-            if self.s == s:
-                output = " X "  # Current
-            # Print terminal state
-            elif position == self.end_state:
-                output = " T "  # Terminal
-            elif self.danger_states[position]:
-                output = " D "  # Danger
+        if current == self.end_state:  # stay in end state
+            new_position = self.end_state
+            is_done = True
+            reward = 0
+        else:
+            new_position = np.array(current) + np.array(delta)
+            new_position = self._limit_coordinates(new_position).astype(int)
+            new_position = tuple(new_position)
+            is_done = new_position == self.end_state or self.danger_states[new_position]
+            if new_position == self.end_state:
+                reward = 5
+            elif self.danger_states[new_position]:
+                reward = 0
             else:
-                output = " O "  # Safe
+                reward = -0.01
 
-            if position[1] == 0:
-                output = output.lstrip()
-            if position[1] == self.grid_specs[1] - 1:
-                output = output.rstrip()
-                output += "\n"
+        return [(
+            1.0,
+            np.ravel_multi_index(new_position, self.grid_specs),
+            reward,
+            is_done,
+            {'next_state_type': self._get_state_type(new_position)}
+        )]
 
-            outfile.write(output)
-        outfile.write("\n")
+    def _get_state_type(self, position):
+        if position == self.end_state:
+            return TERMINAL
+        elif self.danger_states[position]:
+            return DANGER
+        else:
+            return SAFE
 
-        # No need to return anything for human
-        if mode != "human":
-            with closing(outfile):
-                return outfile.getvalue()
+    def render(self, mode='human', **kwargs):
+        """
+        Draw map with agent in it.
+        """
+        if self.fig is None:
+            self.fig = plt.figure(figsize=self.grid_specs)
+            self.ax = plt.gca()
+        plt.cla()
+        self.ax.imshow(self.compute_obs()[:, :, 0])
+        plt.draw()
+        plt.pause(0.01)
+
+
+if __name__ == "__main__":
+    env = DangerousGridWorldEnvCustom()
+    env.render()
+
+    a = 0
+    # for i in range(100):
+    #     a = env.action_space.sample()
+    #     s, r, done, i = env.step(a)
+    #     if done:
+    #         s = env.reset()
+    #     env.render()

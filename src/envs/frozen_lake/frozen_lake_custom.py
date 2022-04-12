@@ -272,7 +272,7 @@ def fallen_in_lake(info, **kwargs):
 
 
 if __name__ == '__main__':
-    env = FrozenLakeEnvCustomMap(desc=MAPS['2000lakes'])
+    env = FrozenLakeEnvCustomMap(is_slippery=False)
 
     for i in range(100):
         a = env.action_space.sample()

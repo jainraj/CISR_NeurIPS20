@@ -81,6 +81,7 @@ def main(n_interv=3):
                                  acquisition_type='LCB',
                                  maximize=True,
                                  normalize_Y=True,
+                                 verbosity=True,
                                  model_update_interval=1,
                                  model=model)
 
@@ -89,7 +90,7 @@ def main(n_interv=3):
         GPy.priors.Gamma.from_EV(0.01, 0.1))
 
     t = time.time()
-    my_bo.run_optimization(20,
+    my_bo.run_optimization(20, verbosity=True,
                            report_file=os.path.join(base_dir, 'bo_report.txt'),
                            evaluations_file=os.path.join(base_dir,
                                                          'bo_evaluations.csv'),
