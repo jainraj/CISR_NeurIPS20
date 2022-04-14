@@ -62,7 +62,7 @@ def evaluate_single_switch_policy(policy, teacher_env, student_final_env,
     rewards = 0
     rewards_ep = []
     for i in range(timesteps):
-        action, _ = student.predict(obs, deterministic=False)
+        action, _ = student.predict(obs, deterministic=False) #####
         obs, r, g, done, info = student_final_env.step(action)
         rewards += r
         if done:

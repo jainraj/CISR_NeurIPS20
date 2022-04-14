@@ -13,7 +13,7 @@ class TeacherFrozenEnv(TeacherEnv):
 
         self.test_env = self.final_env
         (rewards, lagrangian_rewards, constraint_values,
-         termination, lengths) = self.evaluate_student()
+         termination, lengths) = self.evaluate_student(False)
 
         # Use custom reward that uses normal reward if there is no failure and n * reward for timeout for failure
         penalty = student_reward[b'F']  # Penalty for being alive
@@ -103,7 +103,7 @@ class SmallFrozenTeacherEnv(TeacherFrozenEnv):
 
             self.test_env = self.final_env
             (rewards, lagrangian_rewards, constraint_values,
-             termination, lengths) = self.evaluate_student()
+             termination, lengths) = self.evaluate_student(False)
             obs[0] = np.mean(termination == 1)
             obs[1] = self.old_action if self.old_action is not None else 0
 

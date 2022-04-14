@@ -14,7 +14,7 @@ MAPS = {
         ],
     "8x8": [
         "SFFFFHHH",
-        "FFFFFFFH",
+        "FHFFFFFH",
         "FFHFFHFH",
         "FFFHFFFF",
         "FFFHHFFF",
@@ -184,6 +184,12 @@ MAPS = {
               'FFFGFFFFFF'],
 
     'cliff': [
+        'FFFFFFFFFFFF',
+        'FFFFFFFFFFFF',
+        'FFFFFFFFFFFF',
+        'FFFFFFFFFFFF',
+        'FFFFFFFFFFFF',
+        'FFFFFFFFFFFF',
         'FFFFFFFFFFFF',
         'FFFFFFFFFFFF',
         'FFFFFFFFFFFF',

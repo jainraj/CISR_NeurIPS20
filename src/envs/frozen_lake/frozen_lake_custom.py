@@ -274,7 +274,7 @@ def fallen_in_lake(info, **kwargs):
 
 
 if __name__ == '__main__':
-    env = FrozenLakeEnvCustomMap(is_slippery=True, map_name="cliff")
+    env = FrozenLakeEnvCustomMap(map_name="cliff", is_slippery=True)
     env.render()
 
     a = 0
