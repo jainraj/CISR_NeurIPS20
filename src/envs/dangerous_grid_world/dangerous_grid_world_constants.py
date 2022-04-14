@@ -4,9 +4,9 @@ DOWN = 2
 LEFT = 3
 
 DANGER_STATES = [
-    [False, False, False,  False, False, True,  True,  True],
-    [False, False, False, False, False, False, False, True],
-    [False,  False, True,  False,  False,  True,  False, True],
+    [False, False, False,  False, False, False,  False,  False],
+    [False, False, False, False, False, False, False, False],
+    [False,  False, True,  False,  False,  False,  False, False],
     [False, False, False,  True,  False,  False,  False, False],
     [False, False, False,  True,  True, False, False, False],
     [False,  False, True,  False,  False, True, False, False],

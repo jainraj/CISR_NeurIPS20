@@ -26,10 +26,12 @@ def constraint(info=None, **kwargs):
 
 def small_base_env_fn():
     # Base MDP
-    world_map = MAPS['small']
+    # world_map = MAPS['small']
     not_slipping_prob = 0.8
 
-    env_kwargs = dict(desc=world_map,
+    env_kwargs = dict(#desc=world_map,
+                      map_name='cliff',
+                      is_slippery=True,
                       not_slipping_prob=not_slipping_prob,
                       base_r_mapping=None,
                       timeout=200)
@@ -46,7 +48,7 @@ def small_base_cenv_fn():
 
 def make_base_small_cenvs():
     # Base MDP
-    world_map = MAPS['small']
+    world_map = MAPS['cliff']
 
     # # 2 interventions
     # dist = [1, 1]
@@ -83,9 +85,9 @@ def make_base_small_cenvs():
 
 def my_small_cnn(scaled_images, **kwargs):
     activ = tf.nn.relu
-    layer_1 = activ(conv(scaled_images, 'c1', n_filters=32, filter_size=3,
+    layer_1 = activ(conv(scaled_images, 'c1', n_filters=32, filter_size=(2, 3),
                          stride=1, **kwargs))
-    layer_2 = activ(conv(layer_1, 'c2', n_filters=64, filter_size=3,
+    layer_2 = activ(conv(layer_1, 'c2', n_filters=64, filter_size=(2, 3),
                          stride=1, **kwargs))
     layer_3 = conv_to_fc(layer_2)
     return activ(

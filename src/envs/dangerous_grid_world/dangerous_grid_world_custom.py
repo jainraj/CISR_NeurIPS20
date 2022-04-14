@@ -49,11 +49,10 @@ class DangerousGridWorldEnvCustom(DiscreteEnvCustom):
 
         super(DangerousGridWorldEnvCustom, self).__init__(nS, nA, P, isd, timeout)
 
-        unique_states = [SAFE, TERMINAL, DANGER, 'agent']
-        values = [0., 0.25, 0.5, 0.75]
         self.num_desc = np.zeros_like(self.danger_states, dtype=np.float)
-        self.num_desc[self.danger_states] = 0.5
-        self.num_desc[end_state] = 0.25
+        self.num_desc[self.danger_states] = 0.4
+        self.num_desc[end_state] = 0.2
+        self.num_desc[start_state] = 0.6
 
         n = self.observation_space.n
         shape = (int(np.sqrt(n)), int(np.sqrt(n)), 1)  # Last dim for CNN

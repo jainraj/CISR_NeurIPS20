@@ -223,9 +223,11 @@ class FrozenLakeEnvCustomMap(FrozenLakeEnvCustom):
         for i, symbol in enumerate(symbols):
             self.num_desc[self.desc == symbol] = i / len(symbols)
 
-        # Redefine obs space
-        n = self.observation_space.n
-        shape = (int(np.sqrt(n)), int(np.sqrt(n)), 1) # Last dim for CNN
+        # n = self.observation_space.n
+        shape = (
+            self.num_desc.shape[0],
+            self.num_desc.shape[1],
+            1)  # Last dim for CNN
         self.observation_space = gym.spaces.Box(low=0, high=1,
                                                 shape=shape, dtype=np.float)
 
@@ -259,7 +261,7 @@ class FrozenLakeEnvCustomMap(FrozenLakeEnvCustom):
         Draw map with agent in it.
         """
         if self.fig is None:
-            self.fig = plt.figure(figsize=(10, 10))
+            self.fig = plt.figure(figsize=self.num_desc.transpose().shape)
             self.ax = plt.gca()
         plt.cla()
         self.ax.imshow(self.compute_obs()[:, :, 0])
@@ -272,8 +274,10 @@ def fallen_in_lake(info, **kwargs):
 
 
 if __name__ == '__main__':
-    env = FrozenLakeEnvCustomMap(is_slippery=False)
+    env = FrozenLakeEnvCustomMap(is_slippery=True, map_name="cliff")
+    env.render()
 
+    a = 0
     for i in range(100):
         a = env.action_space.sample()
         s, r, done, i = env.step(a)

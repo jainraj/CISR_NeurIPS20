@@ -9,6 +9,7 @@ from src.teacher.dangerous_grid_world.dgw_deploy_teach_policy import deploy_poli
 from src.teacher.dangerous_grid_world.dgw_single_switch import SingleSwitchPolicy
 from src.utils.plotting import cm2inches, set_figure_params
 from src.teacher.dangerous_grid_world.dgw_teach_env import create_teacher_env, base_cenv_fn
+from src.teacher.flake_approx.deploy_teacher_policy import OpenLoopTeacher
 
 
 def plot_comparison(log_dir, teacher_dir):
@@ -19,7 +20,9 @@ def plot_comparison(log_dir, teacher_dir):
     # Fix plotting when using command line on Mac
     plt.rcParams['pdf.fonttype'] = 42
 
-    modes = ['Trained']
+    modes = ['Trained', 'SR1', 'SR2', 'HR', 'Original',
+             # 'Bandit'
+             ]
     metric = ['successes', 'training_failures', 'averarge_returns']
     metric_summary = np.zeros((len(modes), len(metric)), dtype=float)
     teacher = SingleSwitchPolicy.load(os.path.join(teacher_dir, 'trained_teacher'))
@@ -60,8 +63,19 @@ def run_comparision(log_dir, teacher_dir):
 
     n_trials = 10
     t = time.time()
-    for mode in ['Trained']:
-        model = SingleSwitchPolicy.load(os.path.join(teacher_dir, 'trained_teacher'))
+    for mode in ['Trained', 'Original', 'SR1', 'SR2', 'HR',
+                 # 'Bandit'
+                 ]:
+        if mode == 'SR2':
+            model = OpenLoopTeacher([1])
+        elif mode in ['SR1', 'Original']:
+            model = OpenLoopTeacher([0])
+        elif mode == 'HR':
+            model = OpenLoopTeacher([2])
+        # elif mode == 'Bandit':
+        #     model = NonStationaryBanditPolicy(3, 10)
+        elif mode == 'Trained':
+            model = SingleSwitchPolicy.load(os.path.join(teacher_dir, 'trained_teacher'))
         processes = []
 
         for i in range(n_trials):
@@ -106,7 +120,7 @@ if __name__ == '__main__':
     log_dir = os.path.join(results_dir, 'teacher_comparison')
     base_teacher_dir = os.path.join(results_dir, 'teacher_training')
 
-    teachers = ['12_04_22__18_33_28']
+    teachers = []
 
     teachers_to_plot = teachers
     teachers_to_run = teachers

@@ -19,12 +19,13 @@ import GPy
 from GPyOpt.methods import BayesianOptimization
 from GPyOpt.models import GPModel
 import time
+from src.envs.dangerous_grid_world.dangerous_grid_world_constants import DANGER, TERMINAL
 
 tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 
 
 def constraint(info=None, **kwargs):
-    return {'g': float(info['next_state_type'] == 'danger')}
+    return {'g': float(info['next_state_type'] == DANGER)}
 
 
 def base_cenv_fn():
@@ -35,24 +36,15 @@ def base_cenv_fn():
                 avg_constraint=True)
 
 
-domain = [{'name': 'var_1', 'type': 'continuous', 'domain': (-0.5, 5.5)},
-              {'name': 'var_2', 'type': 'continuous', 'domain': (0, 0.2)},
-              {'name': 'var_3', 'type': 'continuous', 'domain': (-0.5, 5.5)},
-              {'name': 'var_4', 'type': 'continuous', 'domain': (0, 0.2)},
-              {'name': 'var_5', 'type': 'discrete', 'domain': tuple(range(4))},
-              {'name': 'var_6', 'type': 'discrete', 'domain': tuple(range(4))},
-              {'name': 'var_7', 'type': 'discrete', 'domain': tuple(range(4))}]
-
-
 def make_base_cenvs():
     # make intervention base constrained envs
-    # dist =           [1,    1,    1,    1,]
-    # tau =            [0.1,  0.1,  0,    0,]
-    # buff_size =      [1,    0,    1,    0,]
-    # avg_constraint = [True, True, True, True]
+    dist = [2, 1, 1]
+    tau = [0.1, 0.1, 0]
+    buff_size = [1, 1, 0]
+    avg_constraint = [True, True, True]
     interventions = []
 
-    for d, t, b, avg in product([1], [0, 0.1], [1, 0], [True]):
+    for d, t, b, avg in zip(dist, tau, buff_size, avg_constraint):
         interventions.append(
             create_intervention(
                 base_cenv_fn,
@@ -125,10 +117,10 @@ def create_teacher_env(new_br_kwargs={}, new_online_kwargs={},
         interventions, test_env = make_base_cenvs()
 
     # todo: get clarity on these values
-    learning_steps = 10000 * 2
+    learning_steps = 4800 * 2
     time_steps_lim = learning_steps * 10
     test_episode_timeout = 200
-    test_episode_number = 10
+    test_episode_number = 5
 
     # todo: keep same for now
     if obs_from_training:
@@ -158,7 +150,7 @@ class DangerousGridWorldEvaluationLogger(BaseEvaluationLogger):
         if not transition_dict['done']:
             return None
         else:
-            if transition_dict['info']['next_state_type'] == 'terminal':
+            if transition_dict['info']['next_state_type'] == TERMINAL:
                 return 1
             elif transition_dict['info']['teacher_intervention']:
                 return -1
@@ -229,7 +221,7 @@ class DangerousGridWorldTeacherEnv(TeacherEnv):
 
         # Use custom reward that uses normal reward if there is no failure and n * reward for timeout for failure
         custom_rewards = rewards.copy()
-        custom_rewards[termination == -1] = 2 * -0.1 * self.test_episode_timeout
+        custom_rewards[termination == -1] = 2 * -0.01 * self.test_episode_timeout
 
         m = custom_rewards.mean()
 
@@ -274,6 +266,15 @@ class DangerousGridWorldTrainingObservation(DangerousGridWorldTeacherEnv):
         return 0
 
 
+domain = [{'name': 'var_1', 'type': 'continuous', 'domain': (-0.5, 5.5)},
+          {'name': 'var_2', 'type': 'continuous', 'domain': (0, 0.2)},
+          {'name': 'var_3', 'type': 'continuous', 'domain': (-0.5, 5.5)},
+          {'name': 'var_4', 'type': 'continuous', 'domain': (0, 0.2)},
+          {'name': 'var_5', 'type': 'discrete', 'domain': tuple(range(3))},
+          {'name': 'var_6', 'type': 'discrete', 'domain': tuple(range(3))},
+          {'name': 'var_7', 'type': 'discrete', 'domain': tuple(range(3))}]
+
+
 def train_a_teacher():
     kern = GPy.kern.RBF(input_dim=7, variance=1,
                         lengthscale=[1., 0.05, 1, 0.05, 0.5, 0.5, 0.5],
@@ -282,7 +283,7 @@ def train_a_teacher():
                                 np.array([0, 2]))
     kern.lengthscale.priors.add(GPy.priors.Gamma.from_EV(0.05, 0.02),
                                 np.array([1, 3]))
-    kern.lengthscale.priors.add(GPy.priors.Uniform(0, 4),
+    kern.lengthscale.priors.add(GPy.priors.Gamma.from_EV(0.2, 0.2),
                                 np.array([4, 5, 6]))
     kern.variance.set_prior(GPy.priors.Gamma.from_EV(1, 0.2))
     model = GPModel(kernel=kern, noise_var=0.05, max_iters=1000)
