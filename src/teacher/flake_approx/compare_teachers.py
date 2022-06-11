@@ -9,10 +9,9 @@ import argparse
 
 from src.teacher.flake_approx.deploy_teacher_policy import deploy_policy, \
     plot_deployment_metric, OpenLoopTeacher
-from src.contextual_bandits import CGPUCBPolicy, ContextualBanditRL
 from src.teacher.flake_approx.teacher_env import create_teacher_env, \
     small_base_cenv_fn
-from src.teacher.frozen_single_switch_utils import SingleSwitchPolicy
+from src.teacher.flake_approx.frozen_single_switch_utils import SingleSwitchPolicy
 from src.teacher.NonStationaryBanditPolicy import NonStationaryBanditPolicy
 from src.utils.plotting import cm2inches, set_figure_params
 
@@ -25,7 +24,9 @@ def plot_comparison(log_dir, teacher_dir):
     # Fix plotting when using command line on Mac
     plt.rcParams['pdf.fonttype'] = 42
 
-    modes = ['Trained', 'SR1', 'SR2', 'HR', 'Original', 'Bandit']
+    modes = ['Trained', 'SR1', 'SR2', 'HR', 'Original',
+             # 'Bandit'
+             ]
     metric = ['successes', 'training_failures', 'averarge_returns']
     metric_summary = np.zeros((len(modes), len(metric)), dtype=float)
     teacher = SingleSwitchPolicy.load(os.path.join(teacher_dir,
@@ -61,15 +62,15 @@ def run_comparision(log_dir, teacher_dir):
     env_f = partial(create_teacher_env)
     env_f_original = partial(create_teacher_env, original=True)
     env_f_single_switch = partial(create_teacher_env, obs_from_training=True)
-    env_f_stationary_bandit = partial(create_teacher_env,
-                                      non_stationary_bandit=True)
-    teacher = SingleSwitchPolicy.load(os.path.join(teacher_dir,
-                                                   'trained_teacher'))
+    env_f_stationary_bandit = partial(create_teacher_env, non_stationary_bandit=True)
+    teacher = SingleSwitchPolicy.load(os.path.join(teacher_dir, 'trained_teacher'))
     log_dir = os.path.join(log_dir, teacher.name)
 
     n_trials = 10
     t = time.time()
-    for mode in ['Trained', 'SR1', 'SR2', 'HR', 'Original', 'Bandit']:
+    for mode in ['Trained', 'Original', 'SR1', 'SR2', 'HR',
+                 # 'Bandit'
+                 ]:
         if mode == 'SR2':
             model = OpenLoopTeacher([1])
         elif mode in ['SR1', 'Original']:
@@ -79,8 +80,7 @@ def run_comparision(log_dir, teacher_dir):
         elif mode == 'Bandit':
             model = NonStationaryBanditPolicy(3, 10)
         elif mode == 'Trained':
-            model =SingleSwitchPolicy.load(os.path.join(teacher_dir,
-                                           'trained_teacher'))
+            model = SingleSwitchPolicy.load(os.path.join(teacher_dir, 'trained_teacher'))
         processes = []
 
         for i in range(n_trials):
@@ -94,38 +94,7 @@ def run_comparision(log_dir, teacher_dir):
             else:
                 teacher_env = env_f
             p = mp.Process(target=deploy_policy,
-                           args=[model, log_tmp, teacher_env,
-                                 small_base_cenv_fn])
-            p.start()
-            processes.append(p)
-        for p in processes:
-            p.join()
-    print(f'elapsed {time.time() - t}')
-
-
-def run_bandits(log_dir):
-    """
-    Run n_rounds x n_trials students with bandit teacher from "Teacher-student
-    curriculum learning" by Matiisen et al. and stores the results in log_dir.
-    """
-    env_f_stationary_bandit = partial(create_teacher_env,
-                                      non_stationary_bandit=True)
-    n_rounds = 3  # Number of times n_trials students are run
-    n_trials = 10  # Number of students to run in parallel
-    t = time.time()
-
-    model = NonStationaryBanditPolicy(3, 10)
-
-    for j in range(n_rounds):
-        print(f'--------Running {j}th round of bandits----------')
-        processes = []
-        n_existing_experiments = len(os.listdir(log_dir))
-        for i in range(n_trials):
-            log_tmp = os.path.join(log_dir, f'experiment{i + n_existing_experiments}')
-            teacher_env = env_f_stationary_bandit
-            p = mp.Process(target=deploy_policy,
-                           args=[model, log_tmp, teacher_env,
-                                 small_base_cenv_fn])
+                           args=(model, log_tmp, teacher_env, small_base_cenv_fn))
             p.start()
             processes.append(p)
         for p in processes:
@@ -134,8 +103,7 @@ def run_bandits(log_dir):
 
 
 def get_metric_summary(log_dir, teacher_dir):
-    teacher = SingleSwitchPolicy.load(os.path.join(teacher_dir,
-                                                   'trained_teacher'))
+    teacher = SingleSwitchPolicy.load(os.path.join(teacher_dir, 'trained_teacher'))
     log_dir = os.path.join(log_dir, teacher.name)
     return np.load(os.path.join(log_dir, 'metrics_summary.npz'))['metric_summary']
 
@@ -175,7 +143,7 @@ if __name__ == '__main__':
             print(f'Could not find teacher {t} in {base_teacher_dir}')
     # Use default teacher is none is given
     if len(teachers) == 0:
-        teachers = ['03_06_20__11_46_57']
+        teachers = []
 
     teachers_to_plot = teachers if args.plot else []
     teachers_to_run = teachers if args.evaluate else []

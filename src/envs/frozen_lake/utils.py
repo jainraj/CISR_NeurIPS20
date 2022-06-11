@@ -391,7 +391,7 @@ def deploy(model, env, timesteps=1000):
     returns, returns_success, trajectories, trajectory = ([], [], [], [])
 
     for _ in range(timesteps):
-        action, _ = model.predict(obs, deterministic=False)
+        action, _ = model.predict(obs, deterministic=False)  #######
         if isinstance(env, CMDP):
             obs, reward, g, done, info = env.step(action)
         else:

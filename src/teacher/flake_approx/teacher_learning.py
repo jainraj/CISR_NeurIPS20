@@ -5,7 +5,7 @@ from GPyOpt.methods import BayesianOptimization
 from GPyOpt.models import GPModel
 import time
 from datetime import datetime
-from src.teacher.frozen_single_switch_utils import evaluate_single_switch_policy, \
+from src.teacher.flake_approx.frozen_single_switch_utils import evaluate_single_switch_policy, \
     SingleSwitchPolicy
 from src.teacher.flake_approx.teacher_env import create_teacher_env, \
     small_base_cenv_fn
@@ -28,12 +28,11 @@ def main(n_interv=3):
                 thresholds = thresholds[0]
             policy = SingleSwitchPolicy(thresholds)
             return evaluate_single_switch_policy(policy, teacher_env, student_final_env)
+
     elif n_interv == 3:
-        domain = [{'name': 'var_1', 'type': 'continuous', 'domain': (-0.5,
-                                                                     5.5)},
+        domain = [{'name': 'var_1', 'type': 'continuous', 'domain': (-0.5, 5.5)},
                   {'name': 'var_2', 'type': 'continuous', 'domain': (0, 0.2)},
-                  {'name': 'var_3', 'type': 'continuous', 'domain': (-0.5,
-                                                                     5.5)},
+                  {'name': 'var_3', 'type': 'continuous', 'domain': (-0.5, 5.5)},
                   {'name': 'var_4', 'type': 'continuous', 'domain': (0, 0.2)},
                   {'name': 'var_5', 'type': 'discrete', 'domain': (0, 1, 2)},
                   {'name': 'var_6', 'type': 'discrete', 'domain': (0, 1, 2)},
@@ -82,6 +81,7 @@ def main(n_interv=3):
                                  acquisition_type='LCB',
                                  maximize=True,
                                  normalize_Y=True,
+                                 verbosity=True,
                                  model_update_interval=1,
                                  model=model)
 
@@ -90,7 +90,7 @@ def main(n_interv=3):
         GPy.priors.Gamma.from_EV(0.01, 0.1))
 
     t = time.time()
-    my_bo.run_optimization(20,
+    my_bo.run_optimization(20, verbosity=True,
                            report_file=os.path.join(base_dir, 'bo_report.txt'),
                            evaluations_file=os.path.join(base_dir,
                                                          'bo_evaluations.csv'),

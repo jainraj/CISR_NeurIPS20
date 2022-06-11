@@ -378,7 +378,7 @@ class TeacherEnv(gym.Env):
 
         self.test_env = self.final_env
         (rewards, lagrangian_rewards, constraint_values,
-        termination, lengths) = self.evaluate_student()
+        termination, lengths) = self.evaluate_student(False)
 
         # Normalize rewards and constrtaint visitation frequency to [0, 1]
         if self.normalize_obs:
@@ -412,7 +412,7 @@ class TeacherEnv(gym.Env):
         """
         self.test_env = self.final_env
         (rewards, lagrangian_rewards, constraint_values,
-         termination, lengths) = self.evaluate_student()
+         termination, lengths) = self.evaluate_student(False)
 
         m = lagrangian_rewards.mean()
 

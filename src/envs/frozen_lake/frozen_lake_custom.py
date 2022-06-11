@@ -5,7 +5,7 @@ import gym
 import matplotlib.pyplot as plt
 import numpy as np
 from gym import utils
-from gym.envs.toy_text import discrete
+from src.envs.discrete_custom import DiscreteEnvCustom
 from gym.envs.toy_text.frozen_lake import generate_random_map
 from six import StringIO
 
@@ -15,43 +15,6 @@ from src.envs.frozen_lake.frozen_maps import MAPS
 from src.envs.frozen_lake.utils import create_reward_shaping_map
 
 __all__ = ['FrozenLakeEnvCustom', 'FrozenLakeEnvCustomMap', 'fallen_in_lake']
-
-
-class DiscreteEnvCustom(discrete.DiscreteEnv):
-
-    """
-    Modfication of the original discrete env to return the info of transitions
-    Has the following members
-    - nS: number of states
-    - nA: number of actions
-    - P: transitions (*)
-    - isd: initial state distribution (**)
-    (*) dictionary over states containinng dictionaries over actions. Each one contains
-      P[s][a] == {'p': [probability], 'transition': [(next_s, reward, done, info)]} The value of 'p' is a list with the
-      probability over the transitions. Transition is a list of tuples. each tuple contains the full info that is the
-      output of an openai gym.step env.
-    (**) list or array of length nS
-    """
-
-    def __init__(self, nS, nA, P, isd, timeout=np.inf):
-        self.nsteps = 0
-        self.timeout = timeout
-        super(DiscreteEnvCustom, self).__init__(nS, nA, P, isd)
-
-    def step(self, a):
-        transitions = self.P[self.s][a]
-        i = discrete.categorical_sample([t[0] for t in transitions], self.np_random)
-        p, s, r, d, info = transitions[i]
-        self.s = s
-        self.lastaction = a
-        info.update({"prob": p})
-        self.nsteps += 1
-        d = np.logical_or(d, self.nsteps > self.timeout)
-        return s, r, d, info
-
-    def reset(self):
-        self.nsteps = 0
-        return super(DiscreteEnvCustom, self).reset()
 
 
 class FrozenLakeEnvCustom(DiscreteEnvCustom):
@@ -260,9 +223,11 @@ class FrozenLakeEnvCustomMap(FrozenLakeEnvCustom):
         for i, symbol in enumerate(symbols):
             self.num_desc[self.desc == symbol] = i / len(symbols)
 
-        # Redefine obs space
-        n = self.observation_space.n
-        shape = (int(np.sqrt(n)), int(np.sqrt(n)), 1) # Last dim for CNN
+        # n = self.observation_space.n
+        shape = (
+            self.num_desc.shape[0],
+            self.num_desc.shape[1],
+            1)  # Last dim for CNN
         self.observation_space = gym.spaces.Box(low=0, high=1,
                                                 shape=shape, dtype=np.float)
 
@@ -296,7 +261,7 @@ class FrozenLakeEnvCustomMap(FrozenLakeEnvCustom):
         Draw map with agent in it.
         """
         if self.fig is None:
-            self.fig = plt.figure(figsize=(10, 10))
+            self.fig = plt.figure(figsize=self.num_desc.transpose().shape)
             self.ax = plt.gca()
         plt.cla()
         self.ax.imshow(self.compute_obs()[:, :, 0])
@@ -309,8 +274,10 @@ def fallen_in_lake(info, **kwargs):
 
 
 if __name__ == '__main__':
-    env = FrozenLakeEnvCustomMap(desc=MAPS['2000lakes'])
+    env = FrozenLakeEnvCustomMap(map_name="cliff", is_slippery=True)
+    env.render()
 
+    a = 0
     for i in range(100):
         a = env.action_space.sample()
         s, r, done, i = env.step(a)

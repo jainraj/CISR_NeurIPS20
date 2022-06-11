@@ -13,14 +13,14 @@ MAPS = {
             "HFFGF"
         ],
     "8x8": [
-        "SFFFFFFF",
-        "FFFFFFFF",
+        "SFFFFHHH",
+        "FHFFFFFH",
+        "FFHFFHFH",
         "FFFHFFFF",
-        "FFFFFHFF",
-        "FFFHFFFF",
-        "FHHFFFHF",
-        "FHFFHFHF",
-        "FFFHFFFG"],
+        "FFFHHFFF",
+        "FFHFFHFF",
+        "FHFFFFHF",
+        "HFFFFFFG"],
 
     'test': [
          'FFFFFFFFFFFFFFFFFFFFFFFFF',
@@ -181,7 +181,20 @@ MAPS = {
               'HFFFFHFFFF',
               'FFHFFFFFFF',
               'HFFFFFFFFF',
-              'FFFGFFFFFF']
+              'FFFGFFFFFF'],
+
+    'cliff': [
+        'FFFFFFFFFFFF',
+        'FFFFFFFFFFFF',
+        'FFFFFFFFFFFF',
+        'FFFFFFFFFFFF',
+        'FFFFFFFFFFFF',
+        'FFFFFFFFFFFF',
+        'FFFFFFFFFFFF',
+        'FFFFFFFFFFFF',
+        'FFFFFFFFFFFF',
+        'SHHHHHHHHHHG',
+    ],
 
 }
 
